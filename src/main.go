@@ -28,6 +28,7 @@ func main() {
         cli.StringFlag{Name: "config.target_branch", EnvVar: "PLUGIN_TARGET_BRANCH"},
         // ssh 服务器参数 json
         cli.StringFlag{Name: "config.ssh_server", EnvVar: "PLUGIN_SERVER"},
+        cli.StringFlag{Name: "config.ssh_server.server_password", EnvVar: "PLUGIN_SERVER_PASSWORD"},
         // 需要更新的项目
         cli.StringFlag{Name: "config.projects_path", EnvVar: "PLUGIN_PROJECTS_PATH"},
     }
@@ -65,6 +66,7 @@ git branch -D temp-%s
     target_branch := c.String("config.target_branch")
     ssh_server := c.String("config.ssh_server")
     projects_path := c.String("config.projects_path")
+    server_password := c.String("config.ssh_server.server_password")
 
     log.Info("build_url : ", build_url)
     log.Info("build_number : ", build_number)
@@ -80,15 +82,21 @@ git branch -D temp-%s
     log.Info("source_branchs : ", source_branchs)
     log.Info("commit_branch : ", commit_branch)
     log.Info("target_branch : ", target_branch)
+    log.Info("server_password : ", server_password)
 
     if inArray(commit_branch, source_branchs) == false {
         return nil
     }
 
+    // 密文不存在，使用明文
+    if server_password == "" {
+        server_password = gjson.Get(ssh_server, "password").String()
+    }
+
     ssh := NewSSHClient(
         gjson.Get(ssh_server, "host").String(),
         gjson.Get(ssh_server, "user").String(),
-        gjson.Get(ssh_server, "password").String(),
+        server_password,
         gjson.Get(ssh_server, "port").Int(),
     )
 

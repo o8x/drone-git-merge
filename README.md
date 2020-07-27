@@ -26,6 +26,8 @@ if commit_branch in source_branchs
 
 
 ## 配置
+server.password 只能明文。server_password 可以从秘密取值
+
 ```yaml
 kind: pipeline
 name: merge-barnch
@@ -41,7 +43,9 @@ steps:
                 host: host
                 port: 22
                 user: root
-                password: "password"
+                password: PASSWORD
+            server_password:
+                from_secret: password
             target_branch: develops
             source_branchs: 
                 - release
