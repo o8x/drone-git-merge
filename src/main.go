@@ -47,9 +47,7 @@ func run(c *cli.Context) error {
     command_template := `
 cd %s
 git branch -D temp-%s || true
-git fetch origin %s:temp-%s && \   
-git merge temp-%s && \
-git branch -D temp-%s
+git fetch origin %s:temp-%s && git merge temp-%s && git branch -D temp-%s
 `
 
     build_url := c.String("build.url")
