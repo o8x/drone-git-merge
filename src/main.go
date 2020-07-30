@@ -44,12 +44,6 @@ var result string
 var err error
 
 func run(c *cli.Context) error {
-    command_template := `
-cd %s
-git branch -D temp-%s || true
-git fetch origin %s:temp-%s && git merge temp-%s && git branch -D temp-%s
-`
-
     build_url := c.String("build.url")
     build_number := c.String("build.number")
     build_started := c.String("build.started")
@@ -111,7 +105,20 @@ git fetch origin %s:temp-%s && git merge temp-%s && git branch -D temp-%s
             continue
         }
 
-        command := fmt.Sprintf(command_template, path, commit_branch, commit_branch, commit_branch, commit_branch, commit_branch)
+        command := fmt.Sprintf(`
+cd %s
+git branch -D temp-%s || true
+git fetch origin %s:temp-%s && git merge temp-%s && git branch -D temp-%s && git pull origin %s 
+`,
+            path,
+            commit_branch,
+            commit_branch,
+            commit_branch,
+            commit_branch,
+            commit_branch,
+            target_branch,
+        )
+
         if result, err = ssh.Run(command); err != nil {
             panic(err)
         }
